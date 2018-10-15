@@ -8,6 +8,7 @@
 <script>
     export default {
         name: "House",
+        props: ['selectedColor'],
         data() {
             return {
                 changed: true,
@@ -21,10 +22,10 @@
         },
         methods: {
             changeRoofColor() {
-                this.backgroundRoof.backgroundColor = 'red'
+                this.backgroundRoof.backgroundColor = this.selectedColor
             },
             changeSquareColor() {
-                this.backgroundSquare.backgroundColor = 'yellow'
+                this.backgroundSquare.backgroundColor = this.selectedColor
             }
         }
     }
