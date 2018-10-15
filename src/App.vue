@@ -13,11 +13,18 @@
       <div class="row">
         <div class="col-10">
       <div class="row">
-        <div class="col-2" v-for="n in houseCount">
+        <div class="col-6 col-sm-4 col-md-2" v-for="n in houseCount">
           <house :selectedColor="color"></house>
         </div>
-        <div class="col-2">
-          <el-button @click="addHouse">Add</el-button>
+        <div class="col-6 col-sm-4 col-md-2">
+          <div @click="addHouse" class="house-button">
+            <div class="house-button-square">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="30" height="30" class="house-button-icon">
+                <path d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 25 4 C 36.609824 4 46 13.390176 46 25 C 46 36.609824 36.609824 46 25 46 C 13.390176 46 4 36.609824 4 25 C 4 13.390176 13.390176 4 25 4 z M 24 13 L 24 24 L 13 24 L 13 26 L 24 26 L 24 37 L 26 37 L 26 26 L 37 26 L 37 24 L 26 24 L 26 13 L 24 13 z"/>
+              </svg>
+            </div>
+            <div class="house-button-roof"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -74,21 +81,43 @@
     margin-top: 60px;
   }
 
-  h1, h2 {
-    font-weight: normal;
-  }
-
-  ul {
-    list-style-type: none;
-    padding: 0;
-  }
-
-  li {
-    display: inline-block;
-    margin: 0 10px;
-  }
-
-  a {
-    color: #42b983;
+  .house-button {
+    position: relative;
+    &:hover {
+      .house-button-roof, .house-button-square {
+        background: #777;
+      }
+    }
+    &-icon {
+      position: absolute;
+      background-color: #FFF;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    &-square {
+      background: #AAA;
+      border: 2px solid #000;
+      height: 100px;
+      width: 100px;
+      position: relative;
+      margin-top: 100px;
+      z-index: 1;
+    }
+    &-roof {
+      background: #AAA;
+      position: absolute;
+      top: -20px;
+      left: -20px;
+      border-left: 2px solid #000;
+      border-top: 2px solid #000;
+      height: 70px;
+      overflow: hidden;
+      width: 70px;
+      transform: rotate(45deg);
+      transform-origin: 100% 100%;
+      z-index: 0;
+    }
   }
 </style>
