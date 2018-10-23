@@ -14,16 +14,13 @@
         <div class="col-10">
       <div class="row">
         <div class="col-6 col-sm-4 col-md-2" v-for="n in houseCount">
-          <house :selectedColor="color"></house>
+          <circle-item :selectedColor="color"></circle-item>
         </div>
         <div class="col-6 col-sm-4 col-md-2">
-          <div @click="addHouse" class="house-button">
-            <div class="house-button-square">
+          <div @click="addHouse" class="circle-button">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="30" height="30" class="house-button-icon">
                 <path d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 25 4 C 36.609824 4 46 13.390176 46 25 C 46 36.609824 36.609824 46 25 46 C 13.390176 46 4 36.609824 4 25 C 4 13.390176 13.390176 4 25 4 z M 24 13 L 24 24 L 13 24 L 13 26 L 24 26 L 24 37 L 26 37 L 26 26 L 37 26 L 37 24 L 26 24 L 26 13 L 24 13 z"/>
               </svg>
-            </div>
-            <div class="house-button-roof"></div>
           </div>
         </div>
       </div>
@@ -38,6 +35,7 @@
 
 <script>
     import House from "./components/House";
+    import CircleItem from "./components/CircleItem";
     import Swatches from "vue-swatches"
 
     export default {
@@ -51,6 +49,7 @@
             }
         },
         components: {
+            CircleItem,
             House,
             Swatches
         },
@@ -118,6 +117,25 @@
       transform: rotate(45deg);
       transform-origin: 100% 100%;
       z-index: 0;
+    }
+  }
+  .circle-button {
+    background: #AAA;
+    border-radius: 50%;
+    border: 2px solid black;
+    height: 100px;
+    position: relative;
+    width: 100px;
+    &:hover {
+        background: #777;
+    }
+    &-icon {
+      position: absolute;
+      background-color: #FFF;
+      border-radius: 50%;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
     }
   }
 </style>
