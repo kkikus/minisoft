@@ -70,9 +70,8 @@
                     colorsNumber: 1,
                     gameColors: [],
                     input: 1,
-                    isResolved: false,
                     itemType: "circle",
-                    numberOfGames: Math.floor(Math.random() * 2) + 1,
+                    isRepeated: Math.random() > .5,
                 },
                 items: [
                     {id: 1, isColoured: false}
@@ -138,7 +137,7 @@
         },
         created() {
             let currentLevel = this.currentLevel.id;
-            this.generateColors(this.levels[currentLevel].minColors, this.levels[currentLevel].maxColors)
+            this.generateColors(currentLevel);
             this.currentLevel.itemType = this.levels[currentLevel].itemType
         },
         methods: {
@@ -150,25 +149,73 @@
             },
             checkAnswer() {
                 if (Math.pow(this.currentLevel.colorsNumber, this.itemSettings[this.currentLevel.itemType].parts) == this.currentLevel.input) {
-                    this.$confirm("Výborne, vaša odpoveď bola správna!", "Správne!", {
-                        confirmButtonText: 'Ďalší level',
-                        type: "success"
-                    })
-                    this.currentLevel.isResolved = true;
+                    if (this.currentLevel.id < this.levels.length - 1) {
+                        this.$confirm("Výborne, vaša odpoveď bola správna!", "Správne!", {
+                            confirmButtonText: 'Ďalší level',
+                            cancelButtonText: 'Znovu',
+                            type: "success"
+                        }).then(() => {
+                            this.resetValues();
+                            if (this.currentLevel.isRepeated) {
+                                this.repeatLevel();
+                            }
+                            else {
+                                this.nextLevel()
+                            }
+                        }).catch(() => {
+                            this.resetValues();
+                            this.repeatLevel();
+                        })
+                    }
+                    else {
+                        this.finish()
+                    }
                 }
                 else {
-                    alert("wrong")
+                    this.$message.error('Nesprávna odpoveď!');
                 }
             },
             deleteItem(id) {
                 this.items.splice(id, 1)
             },
-            generateColors(min, max) {
+            finish() {
+                this.$alert("Vyriešili ste všetky úlohy, gratulujeme!", "Gratulujeme!", {
+                    confirmButtonText: 'Nová hra',
+                    type: "success",
+                    callback: action => {
+                        this.resetValues();
+                        this.currentLevel.id = 0;
+                        this.currentLevel.itemType = 'circle';
+                        this.currentLevel.isRepeated = Math.random() > .5;
+                        this.generateColors(this.currentLevel.id)
+                    }
+                })
+            },
+            generateColors(currentLevel) {
+                let min = this.levels[currentLevel].minColors;
+                let max = this.levels[currentLevel].maxColors;
                 this.currentLevel.colorsNumber = Math.floor(Math.random() * (max - min + 1)) + min;
                 let shuffled = this.colors.sort(() => {
                     return .5 - Math.random()
                 });
                 this.currentLevel.gameColors = shuffled.slice(0, this.currentLevel.colorsNumber);
+            },
+            nextLevel() {
+                this.currentLevel.id++;
+                this.generateColors(this.currentLevel.id)
+                this.currentLevel.itemType = this.levels[this.currentLevel.id].itemType;
+                this.currentLevel.isRepeated = Math.random() < .5;
+            },
+            repeatLevel() {
+                this.currentLevel.isRepeated = false;
+                this.generateColors(this.currentLevel.id)
+            },
+            resetValues() {
+                this.items = [
+                    {id: 1, isColoured: false}
+                ];
+                this.color = '';
+                this.currentLevel.input = 1;
             }
         }
     }
