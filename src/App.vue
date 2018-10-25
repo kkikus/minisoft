@@ -1,24 +1,25 @@
 <template>
   <div id="app">
     <div class="container">
-      <p>Najviac koľko rôznych domčekov vieš vytvoriť tak, že ani jeden nebude vyfarbený rovnako ako ostatné?</p>
+      <p>{{itemSettings[currentLevel.itemType].question}} Použi všetky farby na palete vpravo.</p>
       <div class="row">
         <div class="col-10">
-          <el-input placeholder="Please input" v-model="input"></el-input>
+          <el-input placeholder="Please input" v-model="currentLevel.input"></el-input>
         </div>
         <div class="col-2">
-          <el-button @click="checkAnswer">Check</el-button>
+          <el-button @click="checkAnswer">Skontroluj</el-button>
         </div>
       </div>
       <div class="row">
         <div class="col-10">
           <div class="row">
-            <div class="col-6 col-sm-4 col-md-2" v-for="n in houseCount">
-              <flag-item :selectedColor="color"></flag-item>
+            <div class="col-6 col-sm-4 col-md-2 mb-4" v-for="(item, index) in items" @click.middle="deleteItem(index)">
+              <flag-item v-show="currentLevel.itemType=='flag'" :selectedColor="color"></flag-item>
+              <circle-item v-show="currentLevel.itemType=='circle'" :selectedColor="color"></circle-item>
+              <house v-show="currentLevel.itemType=='house'" :selectedColor="color"></house>
             </div>
             <div class="col-6 col-sm-4 col-md-2">
-              <div @click="addHouse" class="flag-button button">
-
+              <div v-show="currentLevel.itemType=='flag'" @click="addItem" class="flag-button button">
                 <div class="flag-button-item first"></div>
                 <div class="flag-button-item second"></div>
                 <div class="flag-button-item third"></div>
@@ -26,16 +27,28 @@
                   <path d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 25 4 C 36.609824 4 46 13.390176 46 25 C 46 36.609824 36.609824 46 25 46 C 13.390176 46 4 36.609824 4 25 C 4 13.390176 13.390176 4 25 4 z M 24 13 L 24 24 L 13 24 L 13 26 L 24 26 L 24 37 L 26 37 L 26 26 L 37 26 L 37 24 L 26 24 L 26 13 L 24 13 z"/>
                 </svg>
               </div>
-              <!--<div @click="addHouse" class="circle-button button">
+              <div v-show="currentLevel.itemType=='circle'" @click="addItem" class="circle-button button">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="30" height="30" class="house-button-icon">
+                  <path d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 25 4 C 36.609824 4 46 13.390176 46 25 C 46 36.609824 36.609824 46 25 46 C 13.390176 46 4 36.609824 4 25 C 4 13.390176 13.390176 4 25 4 z M 24 13 L 24 24 L 13 24 L 13 26 L 24 26 L 24 37 L 26 37 L 26 26 L 37 26 L 37 24 L 26 24 L 26 13 L 24 13 z"/>
+                </svg>
+              </div>
+              <div v-show="currentLevel.itemType=='house'" @click="addItem" class="house-button button">
+                <div class="house-button-square">
                   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 50 50" width="30" height="30" class="house-button-icon">
                     <path d="M 25 2 C 12.309295 2 2 12.309295 2 25 C 2 37.690705 12.309295 48 25 48 C 37.690705 48 48 37.690705 48 25 C 48 12.309295 37.690705 2 25 2 z M 25 4 C 36.609824 4 46 13.390176 46 25 C 46 36.609824 36.609824 46 25 46 C 13.390176 46 4 36.609824 4 25 C 4 13.390176 13.390176 4 25 4 z M 24 13 L 24 24 L 13 24 L 13 26 L 24 26 L 24 37 L 26 37 L 26 26 L 37 26 L 37 24 L 26 24 L 26 13 L 24 13 z"/>
                   </svg>
-              </div>-->
+                </div>
+                <div class="house-button-roof"></div>
+              </div>
+
             </div>
           </div>
         </div>
         <div class="col-1">
-          <swatches v-model="color" :colors="colors" inline></swatches>
+          <swatches v-model="color" :colors="currentLevel.gameColors" inline></swatches>
+          <svg @click="color='#FFF'" xmlns="http://www.w3.org/2000/svg" class="rubber-icon" width="64" height="64" viewBox="0 0 16 16">
+            <path fill="#444444" d="M8.1 14l6.4-7.2c0.6-0.7 0.6-1.8-0.1-2.5l-2.7-2.7c-0.3-0.4-0.8-0.6-1.3-0.6h-1.8c-0.5 0-1 0.2-1.4 0.6l-6.7 7.6c-0.6 0.7-0.6 1.9 0.1 2.5l2.7 2.7c0.3 0.4 0.8 0.6 1.3 0.6h11.4v-1h-7.9zM6.8 13.9c0 0 0-0.1 0 0l-2.7-2.7c-0.4-0.4-0.4-0.9 0-1.3l3.4-3.9h-1l-3 3.3c-0.6 0.7-0.6 1.7 0.1 2.4l2.3 2.3h-1.3c-0.2 0-0.4-0.1-0.6-0.2l-2.8-2.8c-0.3-0.3-0.3-0.8 0-1.1l3.5-3.9h1.8l3.5-4h1l-3.5 4 3.1 3.7-3.5 4c-0.1 0.1-0.2 0.1-0.3 0.2z"/>
+          </svg>
         </div>
       </div>
     </div>
@@ -52,10 +65,69 @@
         name: 'app',
         data() {
             return {
-                input: 1,
-                houseCount: 1,
-                color: '#000',
-                colors: ['#000000', '#FFEEAA', '#F891A6']
+                currentLevel: {
+                    id: 0,
+                    colorsNumber: 1,
+                    gameColors: [],
+                    input: 1,
+                    isResolved: false,
+                    itemType: "circle",
+                    numberOfGames: Math.floor(Math.random() * 2) + 1,
+                },
+                items: [
+                    {id: 1, isColoured: false}
+                ],
+                color: '',
+                colors: ['#FF6633', '#FF33FF', '#FFFF99', '#00B3E6', '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D', '#6680B3', '#66991A', '#FF99E6', '#CCFF1A', '#E6331A', '#33FFCC', '#B366CC', '#4D8000', '#B33300', '#66664D', '#991AFF', '#33991A', '#B3B31A', '#809980', '#999933', '#66E64D', '#E64D66', '#4DB380', '#6666FF'],
+                levels: [
+                    {
+                        itemType: "circle",
+                        minColors: 1,
+                        maxColors: 2,
+                    }, {
+                        itemType: "circle",
+                        minColors: 3,
+                        maxColors: 4,
+                    }, {
+                        itemType: "circle",
+                        minColors: 4,
+                        maxColors: 6,
+                    }, {
+                        itemType: "house",
+                        minColors: 2,
+                        maxColors: 2,
+                    }, {
+                        itemType: "house",
+                        minColors: 3,
+                        maxColors: 3,
+                    }, {
+                        itemType: "flag",
+                        minColors: 2,
+                        maxColors: 2,
+                    }, {
+                        itemType: "flag",
+                        minColors: 3,
+                        maxColors: 3,
+                    }, {
+                        itemType: "house",
+                        minColors: 4,
+                        maxColors: 5,
+                    }
+                ],
+                itemSettings: {
+                    "circle": {
+                        parts: 1,
+                        question: "Najviac koľko rôznych kruhov vieš vytvoriť tak, že ani jeden nebude vyfarbený rovnako ako ostatné?"
+                    },
+                    "house": {
+                        parts: 2,
+                        question: "Najviac koľko rôznych domčekov vieš vytvoriť tak, že ani jeden nebude vyfarbený rovnako ako ostatné?"
+                    },
+                    "flag": {
+                        parts: 3,
+                        question: "Najviac koľko rôznych vlajok vieš vytvoriť tak, že ani jedna nebude vyfarbená rovnako ako ostatné?"
+                    }
+                }
             }
         },
         components: {
@@ -64,18 +136,39 @@
             House,
             Swatches
         },
+        created() {
+            let currentLevel = this.currentLevel.id;
+            this.generateColors(this.levels[currentLevel].minColors, this.levels[currentLevel].maxColors)
+            this.currentLevel.itemType = this.levels[currentLevel].itemType
+        },
         methods: {
-            addHouse() {
-                this.houseCount++;
-                this.input = this.houseCount;
+            addItem() {
+                this.items.push({
+                    id: this.items.length + 1,
+                    isColoured: false
+                })
             },
             checkAnswer() {
-                if (Math.pow(this.colors.length, 2) == this.input) {
-                    alert("ok");
+                if (Math.pow(this.currentLevel.colorsNumber, this.itemSettings[this.currentLevel.itemType].parts) == this.currentLevel.input) {
+                    this.$confirm("Výborne, vaša odpoveď bola správna!", "Správne!", {
+                        confirmButtonText: 'Ďalší level',
+                        type: "success"
+                    })
+                    this.currentLevel.isResolved = true;
                 }
                 else {
                     alert("wrong")
                 }
+            },
+            deleteItem(id) {
+                this.items.splice(id, 1)
+            },
+            generateColors(min, max) {
+                this.currentLevel.colorsNumber = Math.floor(Math.random() * (max - min + 1)) + min;
+                let shuffled = this.colors.sort(() => {
+                    return .5 - Math.random()
+                });
+                this.currentLevel.gameColors = shuffled.slice(0, this.currentLevel.colorsNumber);
             }
         }
     }
@@ -190,4 +283,12 @@
     }
   }
 
+  .rubber-icon {
+    cursor: pointer;
+    &:hover {
+      path {
+        fill: red;
+      }
+    }
+  }
 </style>
