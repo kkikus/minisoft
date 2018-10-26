@@ -1,22 +1,26 @@
 <template>
   <div id="app">
-    <div class="container">
-      <p>{{itemSettings[currentLevel.itemType].question}} Použi všetky farby na palete vpravo.</p>
-      <div class="row">
-        <div class="col-10">
-          <el-input placeholder="Please input" v-model="currentLevel.input"></el-input>
-        </div>
-        <div class="col-2">
-          <el-button @click="checkAnswer">Skontroluj</el-button>
+    <header class="header">
+      <div class="container">
+        <p>{{itemSettings[currentLevel.itemType].question}} Použi všetky farby na palete vpravo.</p>
+        <div class="row justify-content-center">
+          <div class="col-2">
+            <el-input class="input" placeholder="Please input" v-model="currentLevel.input"></el-input>
+          </div>
+          <div class="col-2">
+            <el-button @click="checkAnswer">Skontroluj</el-button>
+          </div>
         </div>
       </div>
+    </header>
+    <div class="container">
       <div class="row">
         <div class="col-10">
           <div class="row">
             <div class="col-6 col-sm-4 col-md-2 mb-4" v-for="(item, index) in items" @click.middle="deleteItem(index)">
-              <flag-item v-show="currentLevel.itemType=='flag'" :selectedColor="color"></flag-item>
-              <circle-item v-show="currentLevel.itemType=='circle'" :selectedColor="color"></circle-item>
-              <house v-show="currentLevel.itemType=='house'" :selectedColor="color"></house>
+              <flag-item v-show="currentLevel.itemType=='flag'" :selectedColor="color" @colorItem="item.isColoured = true" @whiteItem="item.isColoured = false" @colorsArray=""></flag-item>
+              <circle-item v-show="currentLevel.itemType=='circle'" :selectedColor="color" @colorItem="item.isColoured = true" @whiteItem="item.isColoured = false"></circle-item>
+              <house-item v-show="currentLevel.itemType=='house'" :selectedColor="color" @colorItem="item.isColoured = true" @whiteItem="item.isColoured = false"></house-item>
             </div>
             <div class="col-6 col-sm-4 col-md-2">
               <div v-show="currentLevel.itemType=='flag'" @click="addItem" class="flag-button button">
@@ -46,17 +50,18 @@
         </div>
         <div class="col-1">
           <swatches v-model="color" :colors="currentLevel.gameColors" inline></swatches>
-          <svg @click="color='#FFF'" xmlns="http://www.w3.org/2000/svg" class="rubber-icon" width="64" height="64" viewBox="0 0 16 16">
+          <svg @click="color='white'" xmlns="http://www.w3.org/2000/svg" class="rubber-icon" width="48" height="48" viewBox="0 0 16 16">
             <path fill="#444444" d="M8.1 14l6.4-7.2c0.6-0.7 0.6-1.8-0.1-2.5l-2.7-2.7c-0.3-0.4-0.8-0.6-1.3-0.6h-1.8c-0.5 0-1 0.2-1.4 0.6l-6.7 7.6c-0.6 0.7-0.6 1.9 0.1 2.5l2.7 2.7c0.3 0.4 0.8 0.6 1.3 0.6h11.4v-1h-7.9zM6.8 13.9c0 0 0-0.1 0 0l-2.7-2.7c-0.4-0.4-0.4-0.9 0-1.3l3.4-3.9h-1l-3 3.3c-0.6 0.7-0.6 1.7 0.1 2.4l2.3 2.3h-1.3c-0.2 0-0.4-0.1-0.6-0.2l-2.8-2.8c-0.3-0.3-0.3-0.8 0-1.1l3.5-3.9h1.8l3.5-4h1l-3.5 4 3.1 3.7-3.5 4c-0.1 0.1-0.2 0.1-0.3 0.2z"/>
           </svg>
         </div>
       </div>
     </div>
+    <div class="resolved">Na prvýkrát ste vyriešili nasledovný počet úloh: {{firstResolved}}</div>
   </div>
 </template>
 
 <script>
-    import House from "./components/House";
+    import HouseItem from "./components/HouseItem";
     import CircleItem from "./components/CircleItem";
     import FlagItem from "./components/FlagItem";
     import Swatches from "vue-swatches"
@@ -74,7 +79,7 @@
                     isRepeated: Math.random() > .5,
                 },
                 items: [
-                    {id: 1, isColoured: false}
+                    {id: 1, isColoured: false, colors: []}
                 ],
                 color: '',
                 colors: ['#FF6633', '#FF33FF', '#FFFF99', '#00B3E6', '#E6B333', '#3366E6', '#999966', '#99FF99', '#B34D4D', '#6680B3', '#66991A', '#FF99E6', '#CCFF1A', '#E6331A', '#33FFCC', '#B366CC', '#4D8000', '#B33300', '#66664D', '#991AFF', '#33991A', '#B3B31A', '#809980', '#999933', '#66E64D', '#E64D66', '#4DB380', '#6666FF'],
@@ -126,13 +131,16 @@
                         parts: 3,
                         question: "Najviac koľko rôznych vlajok vieš vytvoriť tak, že ani jedna nebude vyfarbená rovnako ako ostatné?"
                     }
-                }
+                },
+                fillItemsCount: 0,
+                isFirstResolved: true,
+                firstResolved: 0,
             }
         },
         components: {
             FlagItem,
             CircleItem,
-            House,
+            HouseItem,
             Swatches
         },
         created() {
@@ -142,13 +150,18 @@
         },
         methods: {
             addItem() {
+                console.log(this.items);
                 this.items.push({
                     id: this.items.length + 1,
-                    isColoured: false
+                    isColoured: false,
+                    colors: []
                 })
             },
             checkAnswer() {
                 if (Math.pow(this.currentLevel.colorsNumber, this.itemSettings[this.currentLevel.itemType].parts) == this.currentLevel.input) {
+                    if (this.isFirstResolved) {
+                        this.firstResolved++;
+                    }
                     if (this.currentLevel.id < this.levels.length - 1) {
                         this.$confirm("Výborne, vaša odpoveď bola správna!", "Správne!", {
                             confirmButtonText: 'Ďalší level',
@@ -172,6 +185,7 @@
                     }
                 }
                 else {
+                    this.isFirstResolved = false;
                     this.$message.error('Nesprávna odpoveď!');
                 }
             },
@@ -182,12 +196,15 @@
                 this.$alert("Vyriešili ste všetky úlohy, gratulujeme!", "Gratulujeme!", {
                     confirmButtonText: 'Nová hra',
                     type: "success",
+                    dangerouslyUseHTMLString: true,
                     callback: action => {
                         this.resetValues();
                         this.currentLevel.id = 0;
                         this.currentLevel.itemType = 'circle';
                         this.currentLevel.isRepeated = Math.random() > .5;
-                        this.generateColors(this.currentLevel.id)
+                        this.generateColors(this.currentLevel.id);
+                        this.isFirstResolved = true;
+                        this.firstResolved = 0;
                     }
                 })
             },
@@ -199,6 +216,7 @@
                     return .5 - Math.random()
                 });
                 this.currentLevel.gameColors = shuffled.slice(0, this.currentLevel.colorsNumber);
+                this.color = this.currentLevel.gameColors[0]
             },
             nextLevel() {
                 this.currentLevel.id++;
@@ -212,10 +230,11 @@
             },
             resetValues() {
                 this.items = [
-                    {id: 1, isColoured: false}
+                    {id: 1, isColoured: false, colors: []}
                 ];
                 this.color = '';
                 this.currentLevel.input = 1;
+                this.isFirstResolved = true;
             }
         }
     }
@@ -228,7 +247,16 @@
     -moz-osx-font-smoothing: grayscale;
     text-align: center;
     color: #2c3e50;
-    margin-top: 60px;
+  }
+
+  .header {
+    background-color: #b7efb0;
+    box-shadow: 0px -3px 19px 3px #666;
+    margin-bottom: 24px;
+    padding: 48px 0;
+  }
+
+  .input {
   }
 
   .button {
@@ -337,5 +365,13 @@
         fill: red;
       }
     }
+  }
+
+  .resolved {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    margin: 16px;
+    background-color: #fff;
   }
 </style>

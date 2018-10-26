@@ -7,7 +7,7 @@
 
 <script>
     export default {
-        name: "House",
+        name: "HouseItem",
         props: ['selectedColor'],
         data() {
             return {
@@ -22,10 +22,20 @@
         },
         methods: {
             changeRoofColor() {
-                this.backgroundRoof.backgroundColor = this.selectedColor
+                this.backgroundRoof.backgroundColor = this.selectedColor;
+                this.changeItemProperty()
             },
             changeSquareColor() {
-                this.backgroundSquare.backgroundColor = this.selectedColor
+                this.backgroundSquare.backgroundColor = this.selectedColor;
+                this.changeItemProperty()
+            },
+            changeItemProperty() {
+                if(this.backgroundRoof.backgroundColor === "white" && this.backgroundSquare.backgroundColor === "white") {
+                    this.$emit("whiteItem")
+                }
+                else {
+                    this.$emit("colorItem")
+                }
             }
         }
     }

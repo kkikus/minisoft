@@ -16,7 +16,14 @@
         },
         methods: {
             changeFillColor() {
-                this.background.backgroundColor = this.selectedColor
+                this.background.backgroundColor = this.selectedColor;
+                if (this.selectedColor == "white")
+                {
+                    this.$emit("whiteItem")
+                }
+                else {
+                    this.$emit("colorItem")
+                }
             }
         }
     }

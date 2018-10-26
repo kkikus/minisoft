@@ -26,13 +26,25 @@
         },
         methods: {
             changeFirstColor() {
-                this.backgroundFirst.backgroundColor = this.selectedColor
+                this.backgroundFirst.backgroundColor = this.selectedColor;
+                this.changeItemProperty()
             },
             changeSecondColor() {
-                this.backgroundSecond.backgroundColor = this.selectedColor
+                this.backgroundSecond.backgroundColor = this.selectedColor;
+                this.changeItemProperty()
             },
             changeThirdColor() {
-                this.backgroundThird.backgroundColor = this.selectedColor
+                this.backgroundThird.backgroundColor = this.selectedColor;
+                this.changeItemProperty()
+            },
+            changeItemProperty() {
+                this.$emit("colorsArray", ["asf", "sdfdas"]);
+                if(this.backgroundFirst.backgroundColor === "white" && this.backgroundSecond.backgroundColor === "white" && this.backgroundThird.backgroundColor === "white") {
+                    this.$emit("whiteItem")
+                }
+                else {
+                    this.$emit("colorItem")
+                }
             }
         }
     }
